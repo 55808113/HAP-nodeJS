@@ -1,17 +1,19 @@
+var Gpio = require('onoff').Gpio;
 var Accessory = require('../').Accessory;
 var Service = require('../').Service;
 var Characteristic = require('../').Characteristic;
 var uuid = require('../').uuid;
+var LED = new Gpio(14, 'out');
 
 var LightController = {
-  name: "Simple Light", //name of accessory
-  pincode: "031-45-154",
-  username: "FA:3C:ED:5A:1A:1A", // MAC like address used by HomeKit to differentiate accessories. 
+  name: "Simple Light 2", //name of accessory
+  pincode: "131-45-154",
+  username: "EA:3C:ED:5A:1A:1A", // MAC like address used by HomeKit to differentiate accessories. 
   manufacturer: "HAP-NodeJS", //manufacturer (optional)
   model: "v1.0", //model (optional)
-  serialNumber: "A12S345KGB", //serial number (optional)
+  serialNumber: "A12S345KGC", //serial number (optional)
 
-  power: false, //current power status
+  power: true, //current power status
   brightness: 100, //current brightness
   hue: 0, //current hue
   saturation: 0, //current saturation
@@ -95,6 +97,13 @@ lightAccessory
   .getCharacteristic(Characteristic.On)
   .on('set', function(value, callback) {
     LightController.setPower(value);
+	if (value) {
+		LED.writeSync(0);
+//		console.log(LED.readSync(), value);
+	} else {
+		LED.writeSync(1);
+//		console.log(LED.readSync(), value);
+	}
 
     // Our light is synchronous - this value has been successfully set
     // Invoke the callback when you finished processing the request

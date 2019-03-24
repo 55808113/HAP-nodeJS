@@ -1,7 +1,9 @@
+var Gpio = require('onoff').Gpio;
 var Accessory = require('../').Accessory;
 var Service = require('../').Service;
 var Characteristic = require('../').Characteristic;
 var uuid = require('../').uuid;
+var Delay = new Gpio(15, 'out');
 
 // here's a fake hardware device that we'll expose to HomeKit
 var SPRINKLER = {
@@ -29,7 +31,7 @@ var sprinklerUUID = uuid.generate('hap-nodejs:accessories:sprinkler');
 var sprinkler = exports.accessory = new Accessory('💦 Sprinkler', sprinklerUUID);
 
 // Add properties for publishing (in case we're using Core.js and not BridgedCore.js)
-sprinkler.username = "A3:AB:3D:4D:2E:A3";
+sprinkler.username = "A3:AB:3D:4D:2E:B4";
 sprinkler.pincode = "123-44-567";
 
 // Add the actual Valve Service and listen for change events from iOS.
@@ -159,9 +161,11 @@ sprinkler
   // Sprinkler Controll
   function openVentile() {
     // Add your code here
+    Delay.writeSync(0);
   }
 
   function closeVentile() {
     // Add your code here
+   Delay.writeSync(1);
   }
   
