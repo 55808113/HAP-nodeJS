@@ -44,7 +44,6 @@ client.on('connect', function () {
 
 var sonoffObject = {
   powerOn: false,
-  stopTime: 0,
   setPowerOn: function(on) {
     sonoffObject.powerOn = on;
     if (on) {
@@ -81,6 +80,12 @@ sonoff
     else {
       sonoffObject.setPowerOn(value);
       callback();
+
+      if (sonoffObject.powerOn) {
+        setTimeout(() => {
+          sonoffObject.setPowerOn(false);
+        }, 60000)
+      }
     }
   });
 
@@ -89,11 +94,5 @@ sonoff
   .getCharacteristic(Characteristic.On)
   .on('get', function(callback) {
     client.publish(sonoffTopic,'')
-    if (sonoffObject.powerOn) {
-      let duration = sonoffObject.stopTime - Math.floor(new Date() / 1000);
-      if (duration <= 0) {
-        sonoffObject.setPowerOn(false);
-      }
-    }
     callback(undefined, sonoffObject.powerOn);
   });
