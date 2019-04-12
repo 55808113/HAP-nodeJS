@@ -9,7 +9,7 @@ var mqttMSG = false;
 
 var name = "Sonoff Outlet"; //accessory name
 var sonoffUUID = "hap-nodejs:accessories:sonoffstand"; //change this to your preferences
-var sonoffUsername = "0A:1B:2C:3D:4E:5F";
+var sonoffUsername = "7D:2D:31:41:5A:41";
 var MQTT_NAME = 'sonoff' //MQTT topic that was set on the Sonoff firmware
 
 
@@ -44,9 +44,11 @@ client.on('connect', function () {
 
 var sonoffObject = {
   powerOn: false,
+  stopTime: 0,
   setPowerOn: function(on) {
     sonoffObject.powerOn = on;
     if (on) {
+      sonoffObject.stopTime = 60 + Math.floor(new Date() / 1000)
       client.publish(sonoffTopic, 'on');
     } else {
       client.publish(sonoffTopic, 'off');
@@ -60,7 +62,7 @@ var sonoffObject = {
 var sonoff = exports.accessory = new Accessory(name, uuid.generate(sonoffUUID));
 
 sonoff.username = sonoffUsername;
-sonoff.pincode = "031-45-155";
+sonoff.pincode = "031-45-154";
 
 // listen for the "identify" event for this Accessory
 sonoff.on('identify', function(paired, callback) {
@@ -87,5 +89,11 @@ sonoff
   .getCharacteristic(Characteristic.On)
   .on('get', function(callback) {
     client.publish(sonoffTopic,'')
+    if (sonoffObject.powerOn) {
+      let duration = sonoffObject.stopTime - Math.floor(new Date() / 1000);
+      if (duration <= 0) {
+        sonoffObject.setPowerOn(false);
+      }
+    }
     callback(undefined, sonoffObject.powerOn);
   });
