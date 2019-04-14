@@ -27,14 +27,14 @@ client.on('message', function(topic, message) {
   message = message.toString();
   mqttMSG = true;
   if (message.includes('ON')){
-    sonoffObject.powerOn = true;
+    LightController.power = true;
   }
   else{
-    sonoffObject.powerOn = false;
+    LightController.power = false;
   }
-  sonoff
-    .getService(Service.Outlet)
-    .setCharacteristic(Characteristic.On,sonoffObject.powerOn);
+  lightAccessory
+    .getService(Service.Lightbulb)
+    .setCharacteristic(Characteristic.On,LightController.power);
 });
 
 client.on('connect', function () {
