@@ -7,10 +7,10 @@ var uuid = require('../').uuid;
 var $conf = require('../conf/conf');
 var io = require('../conf/socketio-client');
 //============================
-var LightController = {
-  name: "Simple Light", //name of accessory
+var IRremoteLightController = {
+  name: "IRremote Light", //name of accessory
   pincode: "031-45-154",
-  username: "FA:3C:ED:5A:1A:1A", // MAC like address used by HomeKit to differentiate accessories. 
+  username: "FF:3C:ED:5A:1A:1A", // MAC like address used by HomeKit to differentiate accessories. 
   manufacturer: "HAP-NodeJS", //manufacturer (optional)
   model: "v1.0", //model (optional)
   serialNumber: "A12S345KGB", //serial number (optional)
@@ -25,12 +25,12 @@ var LightController = {
   setPower: function(status) { //set power of accessory
     if(this.outputLogs) console.log("Turning the '%s' %s", this.name, status ? "on" : "off");
     this.power = status;
-    io.sendMessage({ "name" : "homekit_light_power","value" : LightController.power});
+    io.sendMessage({ "name" : "homekit_irremotelight_power","value" : IRremoteLightController.power});
 	 /*
     request($conf.configuration.url + '',{
 	   form: {
-	     name: "homekit_light_power",
-	     value: LightController.power
+	     name: "homekit_irremotelight_power",
+	     value: IRremoteLightController.power
 	  	},
 	   json: true
 	 }, 
@@ -50,12 +50,12 @@ var LightController = {
   setBrightness: function(brightness) { //set brightness
     if(this.outputLogs) console.log("Setting '%s' brightness to %s", this.name, brightness);
     this.brightness = brightness;
-    io.sendMessage({ "name" : "homekit_light_brightness","value" : LightController.brightness});
+    io.sendMessage({ "name" : "homekit_irremotelight_brightness","value" : IRremoteLightController.brightness});
     /*
     request($conf.configuration.url + '',{
 	   form: {
-	     name: "homekit_light_brightness",
-	     value: LightController.brightness
+	     name: "homekit_irremotelight_brightness",
+	     value: IRremoteLightController.brightness
 	  	},
 	   json: true
 	 }, 
@@ -75,12 +75,12 @@ var LightController = {
   setSaturation: function(saturation) { //set brightness
     if(this.outputLogs) console.log("Setting '%s' saturation to %s", this.name, saturation);
     this.saturation = saturation;
-    io.sendMessage({ "name" : "homekit_light_saturation","value" : LightController.saturation});
+    io.sendMessage({ "name" : "homekit_irremotelight_saturation","value" : IRremoteLightController.saturation});
     /*
     request($conf.configuration.url + '',{
 	   form: {
-	     name: "homekit_light_saturation",
-	     value: LightController.saturation
+	     name: "homekit_irremotelight_saturation",
+	     value: IRremoteLightController.saturation
 	  	},
 	   json: true
 	 }, 
@@ -100,12 +100,12 @@ var LightController = {
   setHue: function(hue) { //set brightness
     if(this.outputLogs) console.log("Setting '%s' hue to %s", this.name, hue);
     this.hue = hue;
-    io.sendMessage({ "name" : "homekit_light_hue","value" : LightController.hue});
+    io.sendMessage({ "name" : "homekit_irremotelight_hue","value" : IRremoteLightController.hue});
 	 /*
     request($conf.configuration.url + '',{
 	   form: {
-	     name: "homekit_light_hue",
-	     value: LightController.hue
+	     name: "homekit_irremotelight_hue",
+	     value: IRremoteLightController.hue
 	  	},
 	   json: true
 	 }, 
@@ -130,35 +130,35 @@ var LightController = {
 // Generate a consistent UUID for our light Accessory that will remain the same even when
 // restarting our server. We use the `uuid.generate` helper function to create a deterministic
 // UUID based on an arbitrary "namespace" and the word "light".
-var lightUUID = uuid.generate('hap-nodejs:accessories:light' + LightController.name);
+var lightUUID = uuid.generate('hap-nodejs:accessories:light' + IRremoteLightController.name);
 
 // This is the Accessory that we'll return to HAP-NodeJS that represents our light.
-var lightAccessory = exports.accessory = new Accessory(LightController.name, lightUUID);
+var lightAccessory = exports.accessory = new Accessory(IRremoteLightController.name, lightUUID);
 
 // Add properties for publishing (in case we're using Core.js and not BridgedCore.js)
-lightAccessory.username = LightController.username;
-lightAccessory.pincode = LightController.pincode;
+lightAccessory.username = IRremoteLightController.username;
+lightAccessory.pincode = IRremoteLightController.pincode;
 
 // set some basic properties (these values are arbitrary and setting them is optional)
 lightAccessory
   .getService(Service.AccessoryInformation)
-    .setCharacteristic(Characteristic.Manufacturer, LightController.manufacturer)
-    .setCharacteristic(Characteristic.Model, LightController.model)
-    .setCharacteristic(Characteristic.SerialNumber, LightController.serialNumber);
+    .setCharacteristic(Characteristic.Manufacturer, IRremoteLightController.manufacturer)
+    .setCharacteristic(Characteristic.Model, IRremoteLightController.model)
+    .setCharacteristic(Characteristic.SerialNumber, IRremoteLightController.serialNumber);
 
 // listen for the "identify" event for this Accessory
 lightAccessory.on('identify', function(paired, callback) {
-  LightController.identify();
+  IRremoteLightController.identify();
   callback();
 });
 
 // Add the actual Lightbulb Service and listen for change events from iOS.
 // We can see the complete list of Services and Characteristics in `lib/gen/HomeKitTypes.js`
 lightAccessory
-  .addService(Service.Lightbulb, LightController.name) // services exposed to the user should have "names" like "Light" for this case
+  .addService(Service.Lightbulb, IRremoteLightController.name) // services exposed to the user should have "names" like "Light" for this case
   .getCharacteristic(Characteristic.On)
   .on('set', function(value, callback) {
-    LightController.setPower(value);
+    IRremoteLightController.setPower(value);
 
     // Our light is synchronous - this value has been successfully set
     // Invoke the callback when you finished processing the request
@@ -170,7 +170,7 @@ lightAccessory
   // We want to intercept requests for our current power state so we can query the hardware itself instead of
   // allowing HAP-NodeJS to return the cached Characteristic.value.
   .on('get', function(callback) {
-    callback(null, LightController.getPower());
+    callback(null, IRremoteLightController.getPower());
   });
 
 // To inform HomeKit about changes occurred outside of HomeKit (like user physically turn on the light)
@@ -186,11 +186,11 @@ lightAccessory
   .getService(Service.Lightbulb)
   .addCharacteristic(Characteristic.Brightness)
   .on('set', function(value, callback) {
-    LightController.setBrightness(value);
+    IRremoteLightController.setBrightness(value);
     callback();
   })
   .on('get', function(callback) {
-    callback(null, LightController.getBrightness());
+    callback(null, IRremoteLightController.getBrightness());
   });
 
 // also add an "optional" Characteristic for Saturation
@@ -198,11 +198,11 @@ lightAccessory
   .getService(Service.Lightbulb)
   .addCharacteristic(Characteristic.Saturation)
   .on('set', function(value, callback) {
-    LightController.setSaturation(value);
+    IRremoteLightController.setSaturation(value);
     callback();
   })
   .on('get', function(callback) {
-    callback(null, LightController.getSaturation());
+    callback(null, IRremoteLightController.getSaturation());
   });
 
 // also add an "optional" Characteristic for Hue
@@ -210,9 +210,9 @@ lightAccessory
   .getService(Service.Lightbulb)
   .addCharacteristic(Characteristic.Hue)
   .on('set', function(value, callback) {
-    LightController.setHue(value);
+    IRremoteLightController.setHue(value);
     callback();
   })
   .on('get', function(callback) {
-    callback(null, LightController.getHue());
+    callback(null, IRremoteLightController.getHue());
   });
